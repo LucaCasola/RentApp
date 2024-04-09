@@ -20,5 +20,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app)
 const auth = getAuth(app)
 
-// Export the Firestore service from this js file so other parts of your app can use it
+// Export the Firestore services from this js file so other parts of your app can use it
 export { db }
+export { auth }
