@@ -3,7 +3,7 @@ import {useState, useEffect} from "react"
 import { auth } from '../firebaseConfig';
 
 
-const ListingsScreen = ({navigation}) => {
+const SearchScreen = ({navigation}) => {
     const [email, setEmail] = useState(auth.currentUser.email)
     const [userId, setUserId] = useState(auth.currentUser.uid)
 
@@ -14,7 +14,7 @@ const ListingsScreen = ({navigation}) => {
     )
 
 }
-export default ListingsScreen
+export default SearchScreen
 
 
 const styles = StyleSheet.create({
