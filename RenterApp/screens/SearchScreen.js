@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TextInput, Switch, Pressable} from 'react-native';
 import {useState, useEffect} from "react"
 import { auth } from '../firebaseConfig';
-
+import SearchMap from '../components/SearchMap';
 
 const SearchScreen = ({navigation}) => {
     const [email, setEmail] = useState(auth.currentUser.email)
@@ -9,7 +9,7 @@ const SearchScreen = ({navigation}) => {
 
     return(
         <View style={styles.container}>  
-
+            <SearchMap navigation={navigation}/>
         </View>
     )
 
