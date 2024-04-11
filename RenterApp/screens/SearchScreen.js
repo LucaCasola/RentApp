@@ -1,20 +1,20 @@
 import { StyleSheet, Text, View, TextInput, Switch, Pressable} from 'react-native';
 import {useState, useEffect} from "react"
 import { auth } from '../firebaseConfig';
+import SearchMap from '../components/SearchMap';
 
-
-const ListingsScreen = ({navigation}) => {
+const SearchScreen = ({navigation}) => {
     const [email, setEmail] = useState(auth.currentUser.email)
     const [userId, setUserId] = useState(auth.currentUser.uid)
 
     return(
         <View style={styles.container}>  
-
+            <SearchMap navigation={navigation}/>
         </View>
     )
 
 }
-export default ListingsScreen
+export default SearchScreen
 
 
 const styles = StyleSheet.create({
