@@ -21,21 +21,21 @@ const LoginScreen = ({navigation}) => {
             try {
                 try {
                     await signInWithEmailAndPassword(auth, emailFromUI, passwordFromUI)
-                    const docRef = doc(db, "userData", auth.currentUser.uid); //specify which collection and document id to query
+                    console.log("Login successful!")
+
+                    const docRef = doc(db, "ownerData", auth.currentUser.uid); //specify which collection and document id to query
                     const docSnap = await getDoc(docRef); //attempt to get the specified document
 
-                    // use the .exists() function to check if the document could be found and if type is "owner"
-                    if (docSnap.exists() && docSnap.data().accountType === "owner") {
+                    if (docSnap.exists()) {
                         navigation.navigate("Home")
-                    } else if (docSnap.data() === undefined) {
-                        console.log("No such document!");
-                        await signOut(auth)
                     } else {
+                        console.log("No such document in ownerData!");
                         alert("Please login with an owner account")
                         await signOut(auth)
+                        console.log("Logout successful!")
                     }
-                } catch (err) {
-                    console.log(err)
+                } catch (error) {
+                    alert("Invalid account details")
                 }
             } catch(error) {
                 console.log(`Error code: ${error.code}`)
