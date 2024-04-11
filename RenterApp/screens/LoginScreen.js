@@ -26,18 +26,18 @@ const LoginScreen = ({ navigation }) => {
       console.log("No user currently logged in. Attempting to login...");
       try {
         await signInWithEmailAndPassword(auth, emailFromUI, passwordFromUI);
-        const docRef = doc(db, "userData", auth.currentUser.uid); //specify which collection and document id to query
+        console.log("Login successful!");
+
+        const docRef = doc(db, "renterData", auth.currentUser.uid); //specify which collection and document id to query
         const docSnap = await getDoc(docRef); //attempt to get the specified document
 
-        // use the .exists() function to check if the document could be found and if type is "renter"
-        if (docSnap.exists() && docSnap.data().accountType === "renter") {
+        if (docSnap.exists()) {
           navigation.navigate("Home");
-        } else if (docSnap.data() === undefined) {
-          console.log("No such document!");
-          await signOut(auth);
         } else {
+          console.log("No such document in renterData!");
           alert("Please login with a renter account");
           await signOut(auth);
+          console.log("Logout successful!");
         }
       } catch (error) {
         console.log(`Error code: ${error.code}`);

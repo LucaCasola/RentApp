@@ -16,8 +16,8 @@ const AccountScreen = ({navigation}) => {
             } 
             else {
                 await signOut(auth)
+                navigation.navigate("Renter Login")
                 console.log("Logout complete")
-                navigation.navigate("Login")
             }
         } catch(error) {
             console.log("ERROR when logging out")
