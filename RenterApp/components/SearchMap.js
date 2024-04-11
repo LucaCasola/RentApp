@@ -64,8 +64,8 @@ export default function SearchMap({navigation}) {
     }
   };
 
-  useEffect(async () => {
-    await requestPermissions();
+  useEffect(() => {
+    requestPermissions();
   }, []);
 
   if (loading) {
