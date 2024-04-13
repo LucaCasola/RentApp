@@ -1,8 +1,10 @@
-import { StyleSheet, Text, View, FlatList, Pressable, Image} from 'react-native';
+import { StyleSheet, Text, View, FlatList, Pressable, Image} from 'react-native'
 import {useState, useEffect} from "react"
-import { db, auth, storage } from '../firebaseConfig';
-import { doc, getDoc } from "firebase/firestore";
+import { db, auth, storage } from '../firebaseConfig'
+import { doc, getDoc } from "firebase/firestore"
 import { ref, getDownloadURL} from "firebase/storage"
+
+import CardComponent from '../components/CardComponent'
 
 const ListingsScreen = ({navigation}) => {
     const [listings, setListings] = useState([])
@@ -69,16 +71,7 @@ const ListingsScreen = ({navigation}) => {
                     renderItem={
                         ({item})=>{
                             return(
-                                <View>
-                                    <View style={{flexDirection: 'row', padding: 5, justifyContent: 'center'}}>
-                                        <Text style={styles.headingText}>{item.vehicleName}</Text>
-                                    </View>
-                                    
-                                    <Image
-                                        style={{ width: 50, height: 50 }} 
-                                        source={{ uri: item.imageUrl }}
-                                    />
-                                </View>
+                                <CardComponent listing={item}/>
                             )
                         }
                     }
