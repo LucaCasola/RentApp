@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, Switch, Pressable} from 'react-native';
+import { StyleSheet, Text, View, TextInput, Pressable} from 'react-native';
 import { useState } from "react"
 import { db, auth } from '../firebaseConfig';
 import { signOut } from "firebase/auth";
