@@ -5,11 +5,14 @@ import {
   Text,
   View,
   Button,
+  TouchableOpacity,
 } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 export default function SearchMap({ navigation }) {
   // state variables
@@ -17,40 +20,49 @@ export default function SearchMap({ navigation }) {
   const [location, setLocation] = useState(null);
   // loading status
   const [loading, setLoading] = useState(true);
+  // storing owner listings
+  const [ownerInfo, setOwnerInfo] = useState([]);
   // product location markers
   const [markers, setMarkers] = useState([]);
   // for storing selected marker
   const [selectedMarker, setSelectedMarker] = useState(null);
-  // map height
-  const [mapHeight, setMapHeight] = useState("95%");
+
+  // header button for refreshing markers
+  navigation.setOptions({
+    headerRight: () => (
+      <Pressable style={styles.button} onPress={getMarkers}>
+        <Text style={styles.buttonLabel}>Refresh Markers</Text>
+      </Pressable>
+    ),
+  });
 
   const MarkerCard = ({ marker }) => {
     if (!marker) return null;
 
     return (
-      <View style={styles.markerCard}>
-        <View style={{ alignSelf: "center" }}>
-          <Text>{marker.name}</Text>
-          <Text>{marker.desc}</Text>
-        </View>
+      <View style={styles.card}>
+        {/* close marker card */}
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={() => setSelectedMarker(null)}
+        >
+          <Ionicons name="close-circle-outline" size={24} color="black" />
+        </TouchableOpacity>
+
+        {/* marker card content */}
+        <Text style={styles.title}>{marker.vehicleName}</Text>
+        <Text style={styles.text}>Type: {marker.vehicleType}</Text>
+        <Text style={styles.text}>Price: {marker.price}</Text>
+        <Text style={styles.text}>Capacity: {marker.capacity}</Text>
         <Button
-          title="Close"
-          onPress={() => {
-            setSelectedMarker(null);
-            setMapHeight("95%");
-          }}
+          title="Book"
+          onPress={() => alert(`Booked ${marker.vehicleName}`)}
         />
       </View>
     );
   };
 
   const mapViewRef = useRef(null);
-
-  // show product summary when clicked on marker
-  const onMarkerPress = (marker) => {
-    setSelectedMarker(marker);
-    setMapHeight("70%");
-  };
 
   const requestPermissions = async () => {
     try {
@@ -98,22 +110,55 @@ export default function SearchMap({ navigation }) {
 
   //get product markers from the Firestore database
   const getMarkers = async () => {
-    const MARKERS_ARRAY = [
-      {
-        lat: 43.79663862288411,
-        lng: -79.3488463612906,
-        name: "Seneca College",
-        desc: "Get your education here.",
-      },
-      {
-        lat: 43.760757526422935,
-        lng: -79.29724183878953,
-        name: "Costco Wholesale",
-        desc: "get your groceries here.",
-      },
-    ];
+    console.log("Getting markers...");
+    try {
+      // Retrieve all documents from a collection called "ownerData"
+      const ownerData = await getDocs(collection(db, "ownerData"));
 
-    setMarkers(MARKERS_ARRAY);
+      // clear the ownerInfo state before adding new data
+      setOwnerInfo([]);
+
+      // iterating through the ownerData collection and logging the data
+      ownerData.forEach((currOwner) => {
+        console.log(`--------------------------------------------------`);
+        console.log(`Owner id: ${currOwner.id}`);
+        console.log("Owner data:");
+        console.log(currOwner.data());
+        console.log(`--------------------------------------------------`);
+        // kept the owner data and ownerID in same object
+        let tempOwnerInfo = currOwner.data();
+        tempOwnerInfo.ownerID = currOwner.id;
+        ownerInfo.push(tempOwnerInfo);
+      });
+    } catch (err) {
+      console.log(err);
+    }
+
+    // using temp array to store the markers
+    const tempListing = [];
+
+    // iterate through the ownerInfo array and get the listings and owner info
+    await ownerInfo.forEach((owner) => {
+      owner.listings.forEach((listing) => {
+        tempListing.push({
+          ownerID: owner.ownerID,
+          id: listing.id,
+          lat: listing.address.latitude,
+          lng: listing.address.longitude,
+          name: owner.name,
+          vehicleName: listing.vehicleName,
+          vehicleType: listing.vehicleType,
+          price: listing.price,
+          capacity: listing.capacity,
+        });
+      });
+    });
+
+    // set the markers state to the tempListing array
+    setMarkers(tempListing);
+
+    console.log(`Markers: ${JSON.stringify(markers)}`);
+    console.log(`Markers Count: ${markers.length}`);
   };
 
   // get user's location when the component mounts
@@ -130,46 +175,36 @@ export default function SearchMap({ navigation }) {
     <>
       <MapView
         ref={mapViewRef}
-        style={[styles.mapStyle, { height: mapHeight }]}
+        style={[styles.mapStyle, { height: "100%" }]}
         initialRegion={{
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
         }}
-        showsTraffic={true}
       >
         {/* show markers on the maps */}
-        {markers.map((marker, index) => {
-          return (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: marker.lat,
-                longitude: marker.lng,
-              }}
-              title={marker.name}
-              description={marker.desc}
-              onPress={() => onMarkerPress(marker)}
-            >
-              <Ionicons name="pin" size={54} color="black" />
-            </Marker>
-          );
-        })}
+        {markers.length > 0 &&
+          markers.map((marker) => {
+            return (
+              <Marker
+                key={marker.id}
+                coordinate={{
+                  latitude: marker.lat,
+                  longitude: marker.lng,
+                }}
+                // Might remove later
+                onPress={() => setSelectedMarker(marker)}
+              >
+                <View style={styles.markerView}>
+                  <Text>{marker.vehicleName}</Text>
+                </View>
+                <Ionicons name="pin" size={54} color="black" />
+              </Marker>
+            );
+          })}
       </MapView>
       <MarkerCard marker={selectedMarker} />
-      <Pressable style={styles.button} onPress={getMarkers}>
-        <Text
-          style={{
-            textAlign: "center",
-            color: "white",
-            fontSize: 18,
-            paddingVertical: 5,
-          }}
-        >
-          Refresh Markers
-        </Text>
-      </Pressable>
     </>
   );
 }
@@ -182,17 +217,51 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   button: {
-    borderRadius: 15,
-    width: "55%",
-    height: 40,
-    alignSelf: "center",
+    borderRadius: 5,
+    width: "45%",
+    height: "60%",
     backgroundColor: "black",
-    borderWidth: 1,
-    marginTop: 2,
+    marginTop: 5,
+    marginRight: 2,
   },
-  markerCard: {
-    borderWidth: 2,
-    borderColor: "black",
-    // other styles...
+  buttonLabel: {
+    textAlign: "center",
+    color: "white",
+    fontSize: 14,
+    paddingVertical: "5%",
+  },
+  markerView: {
+    alignSelf: "center",
+    backgroundColor: "yellow",
+    padding: 5,
+    borderRadius: 10,
+  },
+  card: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    alignSelf: "center",
+    backgroundColor: "#fff",
+    padding: 20,
+    margin: 10,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  closeButton: {
+    position: "absolute",
+    right: 10,
+    top: 10,
+  },
+  text: {
+    fontSize: 16,
   },
 });
