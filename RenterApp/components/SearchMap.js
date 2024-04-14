@@ -11,8 +11,14 @@ import { useState, useEffect, useRef } from "react";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
 
 export default function SearchMap({ navigation }) {
   // state variables
@@ -26,6 +32,11 @@ export default function SearchMap({ navigation }) {
   const [markers, setMarkers] = useState([]);
   // for storing selected marker
   const [selectedMarker, setSelectedMarker] = useState(null);
+  // booking status for the selected marker
+  const [bookingStatus, setBookingStatus] = useState(false);
+
+  // reference to the map view
+  const mapViewRef = useRef(null);
 
   // header button for refreshing markers
   navigation.setOptions({
@@ -37,7 +48,36 @@ export default function SearchMap({ navigation }) {
   });
 
   const MarkerCard = ({ marker }) => {
+    console.log(`Marker clicked`);
     if (!marker) return null;
+
+    useEffect(() => {
+      const checkIn = async () => {
+        // -------   handling owner side first   -------
+        const docRef = doc(db, "ownerData", marker.ownerID);
+
+        // Get the document
+        const docSnap = await getDoc(docRef);
+        // Get the current listings
+        let listings = docSnap.data().listings;
+
+        // Find the listing you want to update
+        let listingToUpdate = listings.find(
+          (listing) => listing.id === marker.id
+        );
+
+        // Check if the vehicle is already booked by the same user
+        let isAlreadyBooked = await listingToUpdate.bookings.some(
+          (booking) =>
+            booking.renterId === auth.currentUser.uid &&
+            booking.status === "confirmed"
+        );
+
+        setBookingStatus(isAlreadyBooked);
+      };
+
+      checkIn();
+    }, [bookingStatus]);
 
     return (
       <View style={styles.card}>
@@ -54,15 +94,95 @@ export default function SearchMap({ navigation }) {
         <Text style={styles.text}>Type: {marker.vehicleType}</Text>
         <Text style={styles.text}>Price: {marker.price}</Text>
         <Text style={styles.text}>Capacity: {marker.capacity}</Text>
-        <Button
-          title="Book"
-          onPress={() => alert(`Booked ${marker.vehicleName}`)}
-        />
+        {!bookingStatus ? (
+          <Button
+            title="Book"
+            onPress={() => {
+              handleBooking(marker);
+            }}
+          />
+        ) : (
+          <Button
+            title="Confirmed"
+            onPress={() => {
+              alert("Not implemented yet :)");
+            }}
+            disabled
+          />
+        )}
       </View>
     );
   };
 
-  const mapViewRef = useRef(null);
+  // handle booking
+  const handleBooking = async (vehicle) => {
+    console.log("Attempting to get Vehicle...");
+
+    try {
+      // -------   handling owner side first   -------
+      const docRef = doc(db, "ownerData", vehicle.ownerID);
+
+      // Get the document
+      const docSnap = await getDoc(docRef);
+      // Get the current listings
+      let listings = docSnap.data().listings;
+
+      // Find the listing you want to update
+      let listingToUpdate = listings.find(
+        (listing) => listing.id === vehicle.id
+      );
+
+      // Check if the vehicle is already booked by the same user
+      let isAlreadyBooked = listingToUpdate.bookings.some((booking) => {
+        return (
+          booking.renterId === auth.currentUser.uid &&
+          booking.status === "confirmed"
+        );
+      });
+
+      setBookingStatus(isAlreadyBooked);
+
+      if (!isAlreadyBooked) {
+        // Update the bookings in the listing
+        listingToUpdate.bookings.push({
+          renterId: auth.currentUser.uid,
+          status: "confirmed",
+        });
+
+        // Update the document with the new listings
+        await updateDoc(docRef, { listings: listings });
+
+        // --------------------------------------------------------
+
+        // -------  handling renter side   -------
+        const renterRef = doc(db, "renterData", auth.currentUser.uid);
+
+        // Get the document
+        const renterSnap = await getDoc(renterRef);
+        // Get the current bookings
+        let bookings = renterSnap.data().bookings;
+
+        // Add the booking to the renter's bookings
+        bookings.push({
+          ownerID: vehicle.ownerID,
+          listingID: vehicle.id,
+          status: "confirmed",
+        });
+
+        // Update the document with the new bookings
+        await updateDoc(renterRef, { bookings: bookings });
+
+        alert(`Booked ${vehicle.vehicleName}`);
+
+        setSelectedMarker(null);
+      } else {
+        console.log("Vehicle already booked by you");
+        alert("Vehicle already booked by you");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const requestPermissions = async () => {
     try {
