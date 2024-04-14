@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, FlatList, Pressable, Image, Dimensions} from 'react-native'
+import { StyleSheet, Text, View, Image, Dimensions} from 'react-native'
 
 
 const screenWidth = Dimensions.get('window').width;

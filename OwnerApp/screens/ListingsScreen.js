@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, FlatList, Pressable } from 'react-native'
 import {useState, useEffect} from "react"
 
-import { getListings } from '../services/listingsServices'
+import { getListings } from '../services/databaseServices'
 import CardComponent from '../components/CardComponent'
 
 const ListingsScreen = ({navigation}) => {
@@ -9,9 +9,8 @@ const ListingsScreen = ({navigation}) => {
 
     //useEffect to call getListings when the screen is focused
     useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', async () => {
-            let list = await getListings()
-            setListings(list) //call getListings every time the screen is focused
+        const unsubscribe = navigation.addListener('focus', async () => {  //call getListings every time the screen is focused
+            setListings(await getListings())                       
         })
         return unsubscribe //clean up the event listener when done
     }, [navigation])
@@ -23,7 +22,7 @@ const ListingsScreen = ({navigation}) => {
                 <Text style={styles.btnLabel}>Create new Listing</Text>
             </Pressable>
             
-            { (listings.length > 0 ) && ( 
+            { (listings) && ( 
                 <View style={styles.container}>
                     <FlatList
                     style={{}}
@@ -38,9 +37,7 @@ const ListingsScreen = ({navigation}) => {
                     }
 
                     ItemSeparatorComponent={()=>{
-                        return (
-                        <View style={{borderWidth: 3, borderColor:"#fef1f1", borderRadius: 20}}>
-                        </View>)
+                        return ( <View style={{padding: 12}}></View> )
                     }}
                     />
                 </View>  
@@ -63,7 +60,9 @@ const styles = StyleSheet.create({
         borderColor:"#141D21",
         borderRadius:8,
         paddingVertical:16,
-        marginVertical:20
+        marginVertical:20,
+        justifyContent:"center",
+        alignItems:"center"
     },
     btnLabel: {
         fontSize:16,

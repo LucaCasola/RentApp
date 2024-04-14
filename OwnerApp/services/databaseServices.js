@@ -41,3 +41,23 @@ export const getListings = async () => {
         console.log(error)
     }
 }
+
+export const getUserInfo = async () => {
+    try {
+        if (auth.currentUser) {
+            const docRef = doc(db, "ownerData", auth.currentUser.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                let userInfo = { name: docSnap.data().name, photoUrl: docSnap.data().photoUrl };
+                return userInfo;
+            } else {
+                console.log("ERROR - getUserInfo() - No user document found!");
+            }
+        } else {
+            console.log("ERROR - getUserInfo() - No user is signed in");
+        }
+    } catch (error) {
+        console.log("ERROR - getUserInfo() - Error getting document:", error);
+    }
+}
