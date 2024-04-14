@@ -1,58 +1,19 @@
-import { StyleSheet, Text, View, FlatList, Pressable, Image} from 'react-native'
+import { StyleSheet, Text, View, FlatList, Pressable } from 'react-native'
 import {useState, useEffect} from "react"
-import { db, auth, storage } from '../firebaseConfig'
-import { doc, getDoc } from "firebase/firestore"
-import { ref, getDownloadURL} from "firebase/storage"
 
+import { getListings } from '../services/listingsServices'
 import CardComponent from '../components/CardComponent'
 
 const ListingsScreen = ({navigation}) => {
     const [listings, setListings] = useState([])
 
-    const getImage = async (fileName) => {
-        try {
-            const relativePath = '/' + fileName
-            const reference = ref(storage, relativePath)
-            const url = await  getDownloadURL(reference)
-            console.log("photo url:", url)
-            return url; // Return the url
-        } catch (e) {
-            console.log(fileName)
-            console.log('Errors while downloading => ', e)
-        }
-    };
-
-    const getListings = async () => {
-        try {
-            const docRef = doc(db, "ownerData", auth.currentUser.uid);
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                console.log("ownerData document found");
-                if (docSnap.data().listings.length > 0) {
-                    const listingsData = docSnap.data().listings;
-                    const listingsWithImages = await Promise.all(
-                        listingsData.map(async (listing) => {
-                            const imageUrl = await getImage(listing.photoFileName); // Replace with your filename field
-                            return { ...listing, imageUrl };
-                        })
-                    );
-          
-                  setListings(listingsWithImages);
-                }
-            } else if (docSnap.data() === undefined) {
-                console.log("No such document!");
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
+    //useEffect to call getListings when the screen is focused
     useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            getListings() //call getListings every time the screen is focused
+        const unsubscribe = navigation.addListener('focus', async () => {
+            let list = await getListings()
+            setListings(list) //call getListings every time the screen is focused
         })
-        return unsubscribe; //clean up the event listener when done
+        return unsubscribe //clean up the event listener when done
     }, [navigation])
 
 
@@ -116,4 +77,4 @@ const styles = StyleSheet.create({
         fontSize:18,
         paddingVertical:8
     }
-});
+})
