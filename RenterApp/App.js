@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 // import screens
 import LoginScreen from "./screens/LoginScreen";
-import ListingsScreen from './screens/ListingsScreen';
+import SearchScreen from './screens/SearchScreen';
 import BookingsScreen from './screens/BookingsScreen';
 import AccountScreen from './screens/AccountScreen';
 
@@ -25,7 +25,7 @@ export default function App() {
         <Stack.Screen name="Home" options={{ headerShown: false }} >
           {() => (
             <Tab.Navigator>
-              <Tab.Screen name="Listings" component={ListingsScreen} />
+              <Tab.Screen name="Search" component={SearchScreen} />
               <Tab.Screen name="Bookings" component={BookingsScreen} />
               <Tab.Screen name="Account" component={AccountScreen} />
             </Tab.Navigator>
