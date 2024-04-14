@@ -44,12 +44,12 @@ const AccountDisplay = () => {
         <View style={styles.container}>  
             <View style={{flexDirection: 'col'}}>
                 <Image
-                    style={{ width: 55, height: 55, borderRadius: 32}}
+                    style={{ width: 45, height: 45, borderRadius: 32}}
                     source={{ uri: userInfo.photoUrl || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"}}
                 />
                 <Text style={{ fontSize:16, textAlign: "center" }}>{userInfo.name}</Text>
             </View>
-            <MaterialCommunityIcons onPress={logoutPressed} name="logout" size={35} color="black" />
+            <MaterialCommunityIcons style={{paddingTop: 5}} onPress={logoutPressed} name="logout" size={35} color="black" />
         </View>
     )
 }
@@ -61,7 +61,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: '#fff',     
         justifyContent: 'flex-end',
-        alignItems: 'center',
     },  
     logoutBtn: {
         backgroundColor: '#FF7F7F',

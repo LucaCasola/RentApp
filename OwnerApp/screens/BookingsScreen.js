@@ -18,25 +18,21 @@ const BookingsScreen = ({navigation}) => {
 
     return(
         <View style={styles.container}>  
-            { (listings.length > 0 ) && ( 
-                <View style={styles.container}>
-                    <FlatList
-                    style={{}}
-                    data={listings}
-                    keyExtractor={(listing)=>{return listing.id}}
-                    renderItem={
-                        ({item})=>{
-                            return(
-                                <CardComponent listing={item}/>
-                            )
-                        }
-                    }
+            { (listings ) && ( 
+                <FlatList
+                style={{}}
+                data={listings}
+                keyExtractor={(listing)=>{return listing.id}}
+                renderItem={({ item }) => {
+                    return item.bookings && item.bookings.length > 0 && (
+                        <CardComponent listing={item} bookings={item.bookings} />
+                    );
+                }}
 
-                    ItemSeparatorComponent={()=>{
-                        return ( <View style={{padding: 12}}></View> )
-                    }}
-                    />
-                </View>  
+                ItemSeparatorComponent={()=>{
+                    return ( <View style={{padding: 12}}></View> )
+                }}
+                />
             ) }
         </View>
     )
@@ -49,25 +45,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',     
-        padding:20,
-    },  
-    btn: {
-        borderWidth:1,
-        borderColor:"#141D21",
-        borderRadius:8,
-        paddingVertical:16,
-        marginVertical:20
-    },
-    btnLabel: {
-        fontSize:16,
-        textAlign:"center"
-    },
-    headingText: {
-        fontSize:24,
-        paddingVertical:8
-    },
-    text: {
-        fontSize:18,
-        paddingVertical:8
+        padding: 16,
     }
 })

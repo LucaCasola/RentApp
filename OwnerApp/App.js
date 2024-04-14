@@ -14,19 +14,23 @@ import BookingsScreen from './screens/BookingsScreen'
 //import account component
 import AccountDisplay from './components/AccountDisplay'
 
+// import icons
+import { Entypo } from '@expo/vector-icons';
+
 // tab navigator and stack navigator
 const MainStack = createNativeStackNavigator()
-const ListingsStack = createNativeStackNavigator() // create a stack navigator for Listings
+const ListingsStack = createNativeStackNavigator()
+const BookingsStack = createNativeStackNavigator() 
 const Tab = createBottomTabNavigator()
 
 function ListingsScreenStack() { 
     return (
         <ListingsStack.Navigator>
             <ListingsStack.Screen 
-                name="Listings" 
+                name="Listings page" 
                 component={ListingsScreen} 
                 options={{ 
-                    headerTitle: () => <Text style={styles.headerText}>Listings Page</Text>,
+                    headerTitle: () => <Text style={styles.headerText}>Listings</Text>,
                     headerRight: () => <AccountDisplay />,
                 }}
             />
@@ -41,17 +45,26 @@ function ListingsScreenStack() {
     )
 }
 
+function BookingsScreenStack() { 
+    return (
+        <BookingsStack.Navigator>
+            <BookingsStack.Screen 
+                name="Listings" 
+                component={BookingsScreen} 
+                options={{ 
+                    headerTitle: () => <Text style={styles.headerText}>Bookings</Text>,
+                    headerRight: () => <AccountDisplay />,
+                }}
+            />
+        </BookingsStack.Navigator>
+    )
+}
+
 export default function App() {
     return (
         <NavigationContainer>
             <MainStack.Navigator>
-                <MainStack.Screen 
-                    name="Owner Login" 
-                    component={LoginScreen} 
-                    options={{ 
-                        
-                    }}
-                />
+                <MainStack.Screen  name="Owner Login" component={LoginScreen} />
                 <MainStack.Screen name="Home" options={{ headerShown: false }}>
                 {() => (
                     <Tab.Navigator>
@@ -59,15 +72,20 @@ export default function App() {
                             name="Listings" 
                             component={ListingsScreenStack} 
                             options={{ 
+                                tabBarIcon: ({ color, size }) => (
+                                    <Entypo name="list" size={size} color={color} />
+                                ),
                                 headerShown: false,
                             }}
                         />
                         <Tab.Screen 
                             name="Bookings" 
-                            component={BookingsScreen} 
+                            component={BookingsScreenStack} 
                             options={{ 
-                                headerTitle: () => <Text style={styles.headerText}>Bookings</Text>,
-                                headerRight: () => <AccountDisplay />,
+                                tabBarIcon: ({ color, size }) => (
+                                    <Entypo name="open-book" size={size} color={color} />
+                                ),
+                                headerShown: false,
                             }}
                         />
                     </Tab.Navigator>

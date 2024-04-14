@@ -4,6 +4,9 @@ import {useState, useEffect} from "react"
 import { getListings } from '../services/databaseServices'
 import CardComponent from '../components/CardComponent'
 
+// Import icons
+import { AntDesign } from '@expo/vector-icons';
+
 const ListingsScreen = ({navigation}) => {
     const [listings, setListings] = useState([])
 
@@ -18,14 +21,14 @@ const ListingsScreen = ({navigation}) => {
 
     return(
         <View style={styles.container}>  
-            <Pressable style={styles.btn} onPress={() => navigation.navigate('Create new Listing')}>
-                <Text style={styles.btnLabel}>Create new Listing</Text>
-            </Pressable>
-            
-            { (listings) && ( 
-                <View style={styles.container}>
-                    <FlatList
-                    style={{}}
+            { (listings) ? ( 
+                <FlatList
+                    ListHeaderComponent={
+                        <Pressable style={styles.btn} onPress={() => navigation.navigate('Create new Listing')}>
+                            <Text style={styles.btnLabel}>Create new Listing</Text>
+                            <AntDesign name="pluscircleo" size={24} color="black" />
+                        </Pressable>
+                    }
                     data={listings}
                     keyExtractor={(listing)=>{return listing.id}}
                     renderItem={
@@ -35,13 +38,16 @@ const ListingsScreen = ({navigation}) => {
                             )
                         }
                     }
-
-                    ItemSeparatorComponent={()=>{
+                    ItemSeparatorComponent={()=> {
                         return ( <View style={{padding: 12}}></View> )
                     }}
-                    />
-                </View>  
-            ) }
+                />
+            ) : (
+                <Pressable style={styles.btn} onPress={() => navigation.navigate('Create new Listing')}>
+                    <Text style={styles.btnLabel}>Create new Listing</Text>
+                    <AntDesign name="pluscircleo" size={24} color="black" />
+                </Pressable>
+            )}
         </View>
     )
 
@@ -53,20 +59,23 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',     
-        padding:20,
+        padding: 16,
     },  
     btn: {
+        flexDirection: "row",
         borderWidth:1,
         borderColor:"#141D21",
-        borderRadius:8,
-        paddingVertical:16,
-        marginVertical:20,
+        borderRadius: 8,
+        padding: 16,
+        marginVertical: 16,
         justifyContent:"center",
-        alignItems:"center"
+        alignItems:"center",
+        alignSelf:"center",
     },
     btnLabel: {
         fontSize:16,
-        textAlign:"center"
+        textAlign:"center", 
+        paddingRight: 10
     },
     headingText: {
         fontSize:24,

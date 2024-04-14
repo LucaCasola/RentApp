@@ -1,10 +1,6 @@
 import { StyleSheet, Text, View, Image, Dimensions} from 'react-native'
 
-
-const screenWidth = Dimensions.get('window').width;
-
-
-const MyComponent = ({listing, renterId}) => {
+const MyComponent = ({listing, bookings}) => {
     return (
         <View style={{flexDirection: 'column', borderWidth: 1, borderRadius: 28}}>
             <View>       
@@ -19,7 +15,15 @@ const MyComponent = ({listing, renterId}) => {
                 <Text>Price per day: ${listing.price}</Text>
                 <Text>{listing.location}</Text>
                 <Text>{listing.renterId}</Text>
+                <Text>{listing.renterId}</Text>
             </View>
+
+            {bookings && (
+                <View styles={{}}> 
+                    <Text>Renter: </Text>
+                </View>
+            )}
+            
 
         </View>
     );
