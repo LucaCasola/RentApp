@@ -42,20 +42,21 @@ export const getListings = async () => {
     }
 }
 
-export const getUserInfo = async () => {
+export const getUserInfo = async (collection, userId) => {
     try {
-        if (auth.currentUser) {
-            const docRef = doc(db, "ownerData", auth.currentUser.uid);
+        if (collection && userId) {
+            const docRef = doc(db, collection, userId);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
                 let userInfo = { name: docSnap.data().name, photoUrl: docSnap.data().photoUrl };
+                console.log("DEBUG - getUserInfo() - userInfo:", userInfo)
                 return userInfo;
             } else {
                 console.log("ERROR - getUserInfo() - No user document found!");
             }
         } else {
-            console.log("ERROR - getUserInfo() - No user is signed in");
+            console.log("ERROR - getUserInfo() - No collection or userId specified");
         }
     } catch (error) {
         console.log("ERROR - getUserInfo() - Error getting document:", error);

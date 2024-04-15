@@ -2,6 +2,7 @@ import { Text, View, StyleSheet, Image } from "react-native";
 
 //import icons
 import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function BookingCard({ listing }) {
   const vehicleIcon = {
@@ -16,10 +17,17 @@ export default function BookingCard({ listing }) {
   return (
     <View style={styles.card} id={listing.id}>
       <Image style={styles.image} source={{ uri: listing.listingImgUrl }} />
+
       <View style={styles.detailsContainer}>
-        <Text style={styles.title}>{listing.vehicleName}</Text>
-        <Text style={styles.text}>Owned by: {listing.ownerName}</Text>
-        <Image style={styles.ownerImage} source={{ uri: listing.ownerImage }} />
+        <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+          <Text style={styles.title}>{listing.vehicleName}</Text>
+
+          <View style={{flexDirection: "column", marginBottom: 20}}>
+            <Image style={styles.ownerImage} source={{ uri: listing.ownerImage }} />
+            <Text style={styles.text}>{listing.ownerName}</Text>
+          </View>
+        </View>
+
         <Text style={styles.text}>{listing.address.postalAdd.formattedAddress}</Text>
 
         <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>

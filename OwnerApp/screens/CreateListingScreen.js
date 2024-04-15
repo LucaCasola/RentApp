@@ -151,7 +151,7 @@ const CreateListingScreen = ({navigation}) => {
             await updateDoc(docToUpdate, { listings: arrayUnion(newListing) }) //appends the new listing to the owner's listings array
             await saveToCloud(imageFromGallery)  //save the image to cloud storage
             alert("Listing successfully created!")
-            navigation.navigate("Listings Screen")
+            navigation.navigate("Listings Page")
         } catch(error) {
             console.log(error)
         }
