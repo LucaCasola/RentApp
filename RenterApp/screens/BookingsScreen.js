@@ -20,7 +20,7 @@ import { getImage } from "../services/databaseServices";
 
 
 export default function BookingsScreen({ navigation }) {
-	const [listings, setListings] = useState({ name: "test" });
+	const [listings, setListings] = useState();
 	const [loading, setLoading] = useState(true);
 
 	const userOnThisScreen = useIsFocused();
@@ -85,6 +85,8 @@ export default function BookingsScreen({ navigation }) {
 				// getting owner name and Image
 				rentedListing.ownerName = ownerData.name;
 				rentedListing.ownerImage = ownerData.photoUrl;
+        rentedListing.confirmationCode = booking.confirmationCode;
+        rentedListing.status = booking.status;
 
 				return rentedListing;
 			});

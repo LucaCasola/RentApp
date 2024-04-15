@@ -1,36 +1,70 @@
-import { Text, View, StyleSheet, Image } from "react-native";
+import { Text, View, StyleSheet, Image, Pressable } from "react-native";
 
 //import icons
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function BookingCard({ listing }) {
   const vehicleIcon = {
-    car: <MaterialCommunityIcons name="car-hatchback" size={24} color="black" />,
-    truck: <MaterialCommunityIcons name="car-lifted-pickup" size={24} color="black" />,
+    car: (
+      <MaterialCommunityIcons name="car-hatchback" size={24} color="black" />
+    ),
+    truck: (
+      <MaterialCommunityIcons
+        name="car-lifted-pickup"
+        size={24}
+        color="black"
+      />
+    ),
     van: <MaterialCommunityIcons name="van-utility" size={24} color="black" />,
-    motorcycle: <MaterialCommunityIcons name="motorbike" size={24} color="black" />,
-    scooter: <MaterialCommunityIcons name="scooter-electric" size={24} color="black" />,
+    motorcycle: (
+      <MaterialCommunityIcons name="motorbike" size={24} color="black" />
+    ),
+    scooter: (
+      <MaterialCommunityIcons name="scooter-electric" size={24} color="black" />
+    ),
     bicycle: <MaterialCommunityIcons name="bicycle" size={24} color="black" />,
-  }
+  };
 
   return (
-    <View style={styles.card} id={listing.id}>
+    <View style={styles.card} id={listing.confirmationCode}>
       <Image style={styles.image} source={{ uri: listing.listingImgUrl }} />
       <View style={styles.detailsContainer}>
         <Text style={styles.title}>{listing.vehicleName}</Text>
+        <Text style={styles.text}>
+          Confirmation Code: {listing.confirmationCode}
+        </Text>
         <Text style={styles.text}>Owned by: {listing.ownerName}</Text>
         <Image style={styles.ownerImage} source={{ uri: listing.ownerImage }} />
-        <Text style={styles.text}>{listing.address.postalAdd.formattedAddress}</Text>
+        <Text style={styles.text}>
+          {listing.address.postalAdd.formattedAddress}
+        </Text>
 
-        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-            <Text style={styles.price}>${listing.price}/day</Text>
-            <View>{vehicleIcon[listing.vehicleType]}</View>
-            <View style={{flexDirection: "row"}}>
-                <Text style={styles.text}>{listing.capacity}</Text>
-                <Ionicons name="people" size={24} color="black" />
-            </View>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: 10,
+          }}
+        >
+          <Text style={styles.price}>${listing.price}/day</Text>
+          <View>{vehicleIcon[listing.vehicleType]}</View>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={styles.text}>{listing.capacity}</Text>
+            <Ionicons name="people" size={24} color="black" />
+          </View>
         </View>
-
+        <Pressable
+          style={[
+            styles.statusBtn,
+            listing.status === "cancelled"
+              ? { backgroundColor: "red" }
+              : { backgroundColor: "#50C878" },
+          ]}
+        >
+          <Text style={styles.subTitle}>{listing.status}</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -82,4 +116,20 @@ const styles = StyleSheet.create({
     color: "#50C878",
     fontWeight: "bold",
   },
+  statusBtn: {
+    flexDirection: "row",
+    color: "black",
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+},
+subTitle: {
+  marginBottom: 7,
+  fontSize: 18,
+  fontWeight: "400",
+  color: "#4a4a4a",
+},
 });
