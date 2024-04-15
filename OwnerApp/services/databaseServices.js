@@ -49,7 +49,7 @@ export const getUserInfo = async (collection, userId) => {
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                let userInfo = { name: docSnap.data().name, photoUrl: docSnap.data().photoUrl };
+                const userInfo = { name: docSnap.data().name, photoUrl: docSnap.data().photoUrl };
                 //console.log("DEBUG - getUserInfo() - userInfo:", userInfo)
                 return userInfo;
             } else {

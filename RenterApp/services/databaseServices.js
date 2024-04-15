@@ -23,7 +23,7 @@ export const getUserInfo = async () => {
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                let userInfo = { name: docSnap.data().name, photoUrl: docSnap.data().photoUrl };
+                const userInfo = { name: docSnap.data().name, photoUrl: docSnap.data().photoUrl };
                 return userInfo;
             } else {
                 console.log("ERROR - getUserInfo() - No user document found!");

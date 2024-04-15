@@ -42,36 +42,38 @@ export default function SearchMap({ navigation }) {
   // reference to the map view
   const mapViewRef = useRef(null);
 
+  // checking for booking status
+  const checkIn = async (marker) => {
+	// -------   handling owner side first   -------
+	const docRef = doc(db, "ownerData", marker.ownerID);
+
+	// Get the document
+	const docSnap = await getDoc(docRef);
+	// Get the current listings
+	const listings = docSnap.data().listings;
+
+	// Find the listing you want to update
+	const listingToUpdate = listings.find(
+	  (listing) => listing.id === marker.id
+	);
+
+	// Check if the vehicle is already booked by the same user
+	const isAlreadyBooked = await listingToUpdate.bookings.some(
+	  (booking) =>
+		booking.renterId === auth.currentUser.uid &&
+		booking.status === "confirmed"
+	);
+
+	setBookingStatus(isAlreadyBooked);
+  };
+
   const MarkerCard = ({ marker }) => {
     console.log(`Marker clicked`);
     if (!marker) return null;
 
     useEffect(() => {
-      const checkIn = async () => {
-        // -------   handling owner side first   -------
-        const docRef = doc(db, "ownerData", marker.ownerID);
 
-        // Get the document
-        const docSnap = await getDoc(docRef);
-        // Get the current listings
-        let listings = docSnap.data().listings;
-
-        // Find the listing you want to update
-        let listingToUpdate = listings.find(
-          (listing) => listing.id === marker.id
-        );
-
-        // Check if the vehicle is already booked by the same user
-        let isAlreadyBooked = await listingToUpdate.bookings.some(
-          (booking) =>
-            booking.renterId === auth.currentUser.uid &&
-            booking.status === "confirmed"
-        );
-
-        setBookingStatus(isAlreadyBooked);
-      };
-
-      checkIn();
+      checkIn(marker);
     }, [bookingStatus]);
 
     return (
