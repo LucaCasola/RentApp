@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, Image, Pressable } from "react-native"
+import { Text, View, StyleSheet, Image, FlatList, Pressable } from "react-native"
 import { useState, useEffect } from "react"
 import { useIsFocused } from '@react-navigation/native';
 import * as Location from "expo-location";
@@ -60,21 +60,15 @@ export default function CardComponent({ listing , showBookings = false}) {
 
     const getRenters = async () => {
         try {
-            /*
-            const promises = listing.bookings.map(async (booking) => {
-                let renter = await getUserInfo("renterData", booking.renterId)
-                let renterObj = {name: renter.name, photoUrl: renter.photoUrl}
-                console.log("DEBUG - getRenters() - renter:", renter)
-                return renterObj
-            })
+            let renters = []
 
-            const renters = await Promise.all(promises)
-            console.log("DEBUG - getRenters() - renters:", renters)
-            setRenterInfo(renters)*/
-            let renter = await getUserInfo("renterData", listing.bookings[0].renterId)
-            console.log("DEBUG - getRenters() - renter:", renter)
-            listing.bookings[0].name = renter.name
-            listing.bookings[0].photoUrl = renter.photoUrl
+            for (let i = 0; i < listing.bookings.length; i++) {
+                let renter = await getUserInfo("renterData", listing.bookings[i].renterId)
+                let renterObj = {name: renter.name, photoUrl: renter.photoUrl, status: listing.bookings[i].status}
+                renters.push(renterObj)
+            }
+
+            setRenterInfo(renters)
         } catch (error) {
             console.log(error)
         }
@@ -111,18 +105,28 @@ export default function CardComponent({ listing , showBookings = false}) {
             </View>
 
             {(showBookings && renterInfo) && (
-            <View style={styles.detailsContainer}>
-                {listing.bookings.map((booking, index) => (
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <Text key={index} style={styles.subTitle}>{booking.name}</Text>
-                        <Image style={styles.renterImage} source={{ uri: booking.photoUrl }} />
-                        <Pressable style={styles.statusBtn}>
-                            <Text key={index} style={styles.subTitle}>{booking.status}</Text>
-                            <MaterialCommunityIcons name="cancel" size={24} color="black" />
-                        </Pressable>
-                    </View>
-                ))}
-            </View>
+                <View>
+                    <FlatList
+                    data={renterInfo}
+                    renderItem={
+                        ({item})=>{
+                            return(
+                                <View style={{flexDirection: "row", alignItems: "center"}}>
+                                    <Image style={styles.renterImage} source={{ uri: item.photoUrl }} />
+                                    <Text style={styles.subTitle}>{item.name}</Text>
+                                    <Pressable style={styles.statusBtn}>
+                                        <Text style={styles.subTitle}>{item.status}</Text>
+                                        <MaterialCommunityIcons name="cancel" size={24} color="black" />
+                                    </Pressable>
+                                </View>
+                            )
+                        }
+                    }
+                    ItemSeparatorComponent={()=> {
+                        return ( <View style={{padding: 12}}></View> )
+                    }}
+                    />
+                </View>
             )}
         </View>
     )
@@ -143,6 +147,8 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     statusBtn: {
+        flexDirection: "row",
+        color: "black",
         backgroundColor: "#50C878",
         padding: 10,
         borderRadius: 10,
