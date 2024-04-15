@@ -144,14 +144,14 @@ const CreateListingScreen = ({navigation}) => {
                 city: city,
                 address: geocodedLocation,
                 price: price,
-                renterId: []
+                bookings: []
             }
 
             const docToUpdate = doc(db, "ownerData", auth.currentUser.uid) //specify which collection and document id to query
             await updateDoc(docToUpdate, { listings: arrayUnion(newListing) }) //appends the new listing to the owner's listings array
             await saveToCloud(imageFromGallery)  //save the image to cloud storage
             alert("Listing successfully created!")
-            navigation.navigate("Listings Screen")
+            navigation.navigate("Listings page")
         } catch(error) {
             console.log(error)
         }

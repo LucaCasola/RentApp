@@ -1,5 +1,5 @@
 import { db, auth, storage } from '../firebaseConfig'
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore"
 import { ref, getDownloadURL} from "firebase/storage"
 
 
@@ -42,22 +42,88 @@ export const getListings = async () => {
     }
 }
 
-export const getUserInfo = async () => {
+export const getUserInfo = async (collection, userId) => {
     try {
-        if (auth.currentUser) {
-            const docRef = doc(db, "ownerData", auth.currentUser.uid);
+        if (collection && userId) {
+            const docRef = doc(db, collection, userId);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
                 let userInfo = { name: docSnap.data().name, photoUrl: docSnap.data().photoUrl };
+                //console.log("DEBUG - getUserInfo() - userInfo:", userInfo)
                 return userInfo;
             } else {
                 console.log("ERROR - getUserInfo() - No user document found!");
             }
         } else {
-            console.log("ERROR - getUserInfo() - No user is signed in");
+            console.log("ERROR - getUserInfo() - No collection or userId specified");
         }
     } catch (error) {
         console.log("ERROR - getUserInfo() - Error getting document:", error);
     }
+}
+
+export const cancelBooking = async (listingId, bookingPassed) => {
+    try {
+        // Update the status of the booking to "cancelled" in the ownerData document
+        const docRef = doc(db, "ownerData", auth.currentUser.uid)
+        const docSnap = await getDoc(docRef)
+
+        if (docSnap.exists()) {
+            const listings = docSnap.data().listings
+            const listingIndex = listings.findIndex((listing) => listing.id === listingId)
+            //console.log("DEBUG - cancelBooking() - listingIndex:", listingIndex)
+            //console.log("DEBUG - cancelBooking() - bookingPassed:", bookingPassed)
+
+            const bookings = listings[listingIndex].bookings
+            const bookingIndex = bookings.findIndex((booking) => booking.renterId === bookingPassed.renterId)
+            //console.log("DEBUG - cancelBooking() - bookingIndex:", bookingIndex)
+
+            bookings[bookingIndex].status = "cancelled"
+            listings[listingIndex].bookings = bookings
+
+            await updateDoc(docRef, { listings: listings }) 
+        }
+
+
+        // Update the status of the booking to "cancelled" in the renterData document
+        const renterDocRef = doc(db, "renterData", bookingPassed.renterId)
+        const renterDocSnap = await getDoc(renterDocRef)
+
+        if (renterDocSnap.exists()) {
+            const bookings = renterDocSnap.data().bookings
+            const bookingIndex = bookings.findIndex((booking) => booking.listingID === listingId)
+            //console.log("DEBUG - cancelBooking() - bookings:", booking)
+
+            bookings[bookingIndex].status = "cancelled"
+            
+            await updateDoc(renterDocRef, { bookings: bookings }) 
+        }
+
+
+        alert('Booking cancelled successfully');
+    } catch (error) {
+        console.log(error)
+        alert('Failed to cancel booking');
+    }
+}
+
+export const getConfirmationCode = async (renterId, listingId) => {
+    try {
+        const docRef = doc(db, "renterData", renterId)
+        const docSnap = await getDoc(docRef)
+
+        if (docSnap.exists()) {
+            const bookings = docSnap.data().bookings
+            //console.log("DEBUG - getConfirmationCode() - bookings:", bookings)
+
+            const bookingIndex = bookings.findIndex((booking) => booking.listingID === listingId)
+            //console.log("DEBUG - getConfirmationCode() - bookingIndex:", bookingIndex)
+
+            return bookings[bookingIndex].confirmationCode
+        }
+    } catch (error) {
+        console.log(error)
+    }
+
 }

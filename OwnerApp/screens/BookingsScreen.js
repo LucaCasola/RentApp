@@ -25,7 +25,7 @@ const BookingsScreen = ({navigation}) => {
                 keyExtractor={(listing)=>{return listing.id}}
                 renderItem={({ item }) => {
                     return item.bookings && item.bookings.length > 0 && (
-                        <CardComponent listing={item} bookings={item.bookings} />
+                        <CardComponent listing={item} showBookings={true} />
                     );
                 }}
 
@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',     
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 16,
     }
 })

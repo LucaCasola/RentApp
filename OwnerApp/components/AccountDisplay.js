@@ -33,7 +33,7 @@ const AccountDisplay = () => {
     useEffect(() => {
         const fetchUserInfo = async () => {
             if (auth.currentUser) {
-                setUserInfo(await getUserInfo())
+                setUserInfo(await getUserInfo(collection="ownerData", userId=auth.currentUser.uid))
             }
         }
 
