@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 
-export default function BookingCard({ listing , showBookings = false}) {
+export default function CardComponent({ listing , showBookings = false}) {
     const [address, setAddress] = useState("")
     const [renterInfo, setRenterInfo] = useState([])
     const isFocused = useIsFocused();
@@ -59,16 +59,25 @@ export default function BookingCard({ listing , showBookings = false}) {
     }
 
     const getRenters = async () => {
-        const promises = listing.booking.map(async (booking) => {
-            let renter = await getUserInfo("renterData", booking.renterId)
-            let renterObj = {name: renter.name, photoUrl: renter.photoUrl}
-            console.log("DEBUG - getRenters() - renter:", renterObj)
-            return renterObj
-        })
+        try {
+            /*
+            const promises = listing.bookings.map(async (booking) => {
+                let renter = await getUserInfo("renterData", booking.renterId)
+                let renterObj = {name: renter.name, photoUrl: renter.photoUrl}
+                console.log("DEBUG - getRenters() - renter:", renter)
+                return renterObj
+            })
 
-        const renters = await Promise.all(promises)
-        console.log("DEBUG - getRenters() - renters:", renters)
-        setRenterInfo(renters)
+            const renters = await Promise.all(promises)
+            console.log("DEBUG - getRenters() - renters:", renters)
+            setRenterInfo(renters)*/
+            let renter = await getUserInfo("renterData", listing.bookings[0].renterId)
+            console.log("DEBUG - getRenters() - renter:", renter)
+            listing.bookings[0].name = renter.name
+            listing.bookings[0].photoUrl = renter.photoUrl
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {
@@ -105,7 +114,8 @@ export default function BookingCard({ listing , showBookings = false}) {
             <View style={styles.detailsContainer}>
                 {listing.bookings.map((booking, index) => (
                     <View style={{flexDirection: "row", alignItems: "center"}}>
-
+                        <Text key={index} style={styles.subTitle}>{booking.name}</Text>
+                        <Image style={styles.renterImage} source={{ uri: booking.photoUrl }} />
                         <Pressable style={styles.statusBtn}>
                             <Text key={index} style={styles.subTitle}>{booking.status}</Text>
                             <MaterialCommunityIcons name="cancel" size={24} color="black" />
