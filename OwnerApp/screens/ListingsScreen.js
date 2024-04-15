@@ -37,10 +37,7 @@ const ListingsScreen = ({navigation}) => {
                     }}
                 />
             ) : (
-                <Pressable style={styles.btn} onPress={() => navigation.navigate('Create new Listing')}>
-                    <Text style={styles.btnLabel}>Create new Listing</Text>
-                    <AntDesign name="pluscircleo" size={24} color="black" />
-                </Pressable>
+                <Text style={styles.btnLabel}>You have no listings. Try adding one.</Text>
             )}
         </View>
     )
