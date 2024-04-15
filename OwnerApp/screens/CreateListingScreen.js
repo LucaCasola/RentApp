@@ -1,5 +1,5 @@
 import { StyleSheet, Text, ScrollView, View, TextInput, Pressable} from 'react-native'
-import {useState } from "react"
+import { useState } from "react"
 import { Picker } from '@react-native-picker/picker'
 import uuid from 'react-native-uuid'
 import * as Location from 'expo-location'

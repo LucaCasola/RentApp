@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, FlatList, Pressable } from 'react-native'
+import { StyleSheet, View, Text, Pressable } from 'react-native'
 
 // import react-navigation
 import { NavigationContainer } from '@react-navigation/native'
@@ -16,6 +16,7 @@ import AccountDisplay from './components/AccountDisplay'
 
 // import icons
 import { Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
 // tab navigator and stack navigator
 const MainStack = createNativeStackNavigator()
@@ -23,14 +24,25 @@ const ListingsStack = createNativeStackNavigator()
 const BookingsStack = createNativeStackNavigator() 
 const Tab = createBottomTabNavigator()
 
-function ListingsScreenStack() { 
+function ListingsScreenStack({ navigation }) { 
     return (
         <ListingsStack.Navigator>
             <ListingsStack.Screen 
                 name="Listings page" 
                 component={ListingsScreen} 
                 options={{ 
-                    headerTitle: () => <Text style={styles.headerText}>Listings</Text>,
+                    headerTitle: () =>  (
+                        <View style={{flexDirection: "row", alignItems: "center"}}>
+                            <Text style={styles.headerText}>Listings </Text>
+
+                            <Pressable 
+                                style={styles.btn} 
+                                onPress={() => navigation.navigate('Create new Listing')}
+                            >
+                                <AntDesign name="pluscircleo" size={24} color="black" />
+                            </Pressable>
+                        </View>
+                    ),
                     headerRight: () => <AccountDisplay />,
                 }}
             />
@@ -49,7 +61,7 @@ function BookingsScreenStack() {
     return (
         <BookingsStack.Navigator>
             <BookingsStack.Screen 
-                name="Listings" 
+                name="Bookings page" 
                 component={BookingsScreen} 
                 options={{ 
                     headerTitle: () => <Text style={styles.headerText}>Bookings</Text>,
@@ -64,7 +76,7 @@ export default function App() {
     return (
         <NavigationContainer>
             <MainStack.Navigator>
-                <MainStack.Screen  name="Owner Login" component={LoginScreen} />
+                <MainStack.Screen name="Owner Login" component={LoginScreen} />
                 <MainStack.Screen name="Home" options={{ headerShown: false }}>
                 {() => (
                     <Tab.Navigator>
@@ -72,20 +84,20 @@ export default function App() {
                             name="Listings" 
                             component={ListingsScreenStack} 
                             options={{ 
+                                headerShown: false,
                                 tabBarIcon: ({ color, size }) => (
                                     <Entypo name="list" size={size} color={color} />
-                                ),
-                                headerShown: false,
+                                )
                             }}
                         />
                         <Tab.Screen 
                             name="Bookings" 
                             component={BookingsScreenStack} 
                             options={{ 
+                                headerShown: false,
                                 tabBarIcon: ({ color, size }) => (
                                     <Entypo name="open-book" size={size} color={color} />
-                                ),
-                                headerShown: false,
+                                )
                             }}
                         />
                     </Tab.Navigator>

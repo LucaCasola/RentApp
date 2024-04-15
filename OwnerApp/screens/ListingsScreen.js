@@ -23,12 +23,6 @@ const ListingsScreen = ({navigation}) => {
         <View style={styles.container}>  
             { (listings) ? ( 
                 <FlatList
-                    ListHeaderComponent={
-                        <Pressable style={styles.btn} onPress={() => navigation.navigate('Create new Listing')}>
-                            <Text style={styles.btnLabel}>Create new Listing</Text>
-                            <AntDesign name="pluscircleo" size={24} color="black" />
-                        </Pressable>
-                    }
                     data={listings}
                     keyExtractor={(listing)=>{return listing.id}}
                     renderItem={
