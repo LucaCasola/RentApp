@@ -27,7 +27,7 @@ export default function BookingCard({ listing }) {
   };
 
   return (
-    <View style={styles.card} id={listing.confirmationCode}>
+    <View style={styles.card}>
       <Image style={styles.image} source={{ uri: listing.listingImgUrl }} />
       <View style={styles.detailsContainer}>
         <Text style={styles.title}>{listing.vehicleName}</Text>
