@@ -1,13 +1,20 @@
-import { Text, View, StyleSheet, Image } from "react-native"
+import { Text, View, StyleSheet, Image, Pressable } from "react-native"
 import { useState, useEffect } from "react"
+import { useIsFocused } from '@react-navigation/native';
 import * as Location from "expo-location";
+
+import { getUserInfo } from '../services/databaseServices'
+
 
 //import icons
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
-export default function BookingCard({ listing }) {
+export default function BookingCard({ listing , showBookings = false}) {
     const [address, setAddress] = useState("")
+    const [renterInfo, setRenterInfo] = useState([])
+    const isFocused = useIsFocused();
 
     const vehicleIcon = {
         car: <MaterialCommunityIcons name="car-hatchback" size={24} color="black" />,
@@ -24,7 +31,7 @@ export default function BookingCard({ listing }) {
             const permissionsObject =  
                 await Location.requestForegroundPermissionsAsync()
             if (permissionsObject.status  === "granted") {
-                console.log("Location permission granted!")
+                //console.log("Location permission granted!")
                 return true          
             } else {
                 console.log("Location permission denied")
@@ -37,6 +44,7 @@ export default function BookingCard({ listing }) {
         }
     }
 
+    // Convert latitude and longitude to address
     const getLocation = async () => {
         if(requestPermissions()) {
             const coords = {
@@ -50,9 +58,32 @@ export default function BookingCard({ listing }) {
         }
     }
 
+    const getRenters = async () => {
+        const promises = listing.booking.map(async (booking) => {
+            let renter = await getUserInfo("renterData", booking.renterId)
+            let renterObj = {name: renter.name, photoUrl: renter.photoUrl}
+            console.log("DEBUG - getRenters() - renter:", renterObj)
+            return renterObj
+        })
+
+        const renters = await Promise.all(promises)
+        console.log("DEBUG - getRenters() - renters:", renters)
+        setRenterInfo(renters)
+    }
+
     useEffect(() => {
-        getLocation()
-    }, [])
+        const fetchLocationAndRenters = async () => {
+            await getLocation();
+            if (showBookings) {
+                await getRenters();
+            }
+        };
+
+        if (isFocused) {
+            fetchLocationAndRenters();
+        }
+    
+    }, [isFocused])
 
     return (
         <View style={styles.card} id={listing.id}>
@@ -69,6 +100,20 @@ export default function BookingCard({ listing }) {
                     </View>
                 </View>
             </View>
+
+            {(showBookings && renterInfo) && (
+            <View style={styles.detailsContainer}>
+                {listing.bookings.map((booking, index) => (
+                    <View style={{flexDirection: "row", alignItems: "center"}}>
+
+                        <Pressable style={styles.statusBtn}>
+                            <Text key={index} style={styles.subTitle}>{booking.status}</Text>
+                            <MaterialCommunityIcons name="cancel" size={24} color="black" />
+                        </Pressable>
+                    </View>
+                ))}
+            </View>
+            )}
         </View>
     )
 }
@@ -87,6 +132,12 @@ const styles = StyleSheet.create({
         shadowRadius: 2.62,
         elevation: 4,
     },
+    statusBtn: {
+        backgroundColor: "#50C878",
+        padding: 10,
+        borderRadius: 10,
+        alignItems: "center",
+    },
     detailsContainer: {
         padding: 20,
     },
@@ -94,10 +145,11 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 200,
     },
-    ownerImage: {
+    renterImage: {
         width: 50,
         height: 50,
         borderRadius: 25,
+        marginRight: 10
     },
     title: {
         marginBottom: 7,
